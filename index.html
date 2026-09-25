@@ -16,7 +16,47 @@
 @media(max-width:900px){.layout{grid-template-columns:74px 1fr}.sidebar{padding:15px 9px}.navitem span{display:none}.sidebar .brand{display:none}.stats{grid-template-columns:1fr 1fr}.profilegrid{grid-template-columns:1fr}.main{padding:19px}.preview-inner{grid-template-columns:95px 1fr}}
 @media(max-width:560px){.nav{padding:0 15px}.nav-actions .btn:first-child{display:none}.hero{padding-top:40px}.hero p{font-size:16px}.preview{height:220px}.fakegrid{grid-template-columns:repeat(3,1fr);padding:10px}.sidefake{padding:10px}.topbar{padding:0 12px}.topbar .brand{display:none}.main{padding:15px}.gallery{grid-template-columns:repeat(2,1fr)}.stats{gap:9px}.stat{padding:14px}.stat strong{font-size:21px}}
 </style>
-</head>
+
+<style id="jadiel-premium-v2">
+:root{--g:#45f59a;--g2:#10b968;--bg:#030705;--panel:#09110d}
+body{background:#030705;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 50% 0,#1c7045 0,transparent 24%),radial-gradient(circle at 90% 70%,#0b4d30 0,transparent 22%);opacity:.45}
+.nav{height:76px;background:#050b07aa;border-bottom-color:#ffffff0d}
+.brand{font-size:22px}
+.brand:after{content:"";display:inline-block;width:6px;height:6px;margin:0 0 2px 5px;border-radius:50%;background:var(--g);box-shadow:0 0 14px var(--g)}
+.hero{min-height:calc(100vh - 76px);padding:55px 18px 80px}
+.badge{box-shadow:0 0 35px #39e58c0b}
+h1{font-weight:950;text-shadow:0 0 50px #39e58c18}
+.hero p{font-size:19px}
+.preview{position:relative;height:350px;border-color:#ffffff16;background:linear-gradient(145deg,#ffffff09,#ffffff02);box-shadow:0 35px 100px #000b,0 0 80px #19c77412}
+.preview:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#fff08 50%,transparent 65%);transform:translateX(-120%);animation:shine 5s infinite;pointer-events:none}@keyframes shine{55%,100%{transform:translateX(120%)}}
+.fakeimg:nth-child(3n){background:linear-gradient(135deg,#1c6843,#0b1b12)}.fakeimg:nth-child(4n){background:linear-gradient(135deg,#254c39,#101914)}
+.app{background:linear-gradient(180deg,#030805,#050a07)}
+.topbar{height:76px;background:#050b07e8;border-bottom-color:#ffffff0c}
+.search input{height:44px;border-radius:14px;background:#08100b;border-color:#ffffff10}
+.sidebar{background:#050b08d9;border-right-color:#ffffff0b}
+.navitem{padding:13px 14px}
+.navitem.active{box-shadow:inset 3px 0 var(--g),0 8px 25px #0004;background:linear-gradient(90deg,#39e58c12,transparent)}
+.main{padding:34px}
+.stat,.panel{background:linear-gradient(145deg,#0b1510e8,#07100bd9);border-color:#ffffff0d;box-shadow:0 18px 55px #0004}
+.stat{transition:.25s}.stat:hover{transform:translateY(-3px);border-color:#39e58c28}
+.upload{padding:36px;border-radius:22px;background:radial-gradient(circle at 50% 0,#39e58c0c,transparent 55%),#07100a;border-color:#39e58c42;box-shadow:inset 0 1px #fff08}
+.tile{border-color:#ffffff0d;box-shadow:0 15px 35px #0007;transition:.3s;cursor:pointer}
+.tile:hover{transform:translateY(-5px) scale(1.015);border-color:#39e58c55;box-shadow:0 20px 50px #0009,0 0 25px #39e58c0b}
+.tile img{transition:.4s}.tile:hover img{transform:scale(1.05)}
+.card{background:linear-gradient(145deg,#0c1711,#07100b);border-color:#ffffff12}
+.modal{background:#000d}
+.btn{border-radius:14px}.btn.primary{box-shadow:0 12px 35px #18b96b2b}
+@media(max-width:700px){
+ .hero{padding:40px 15px 100px}.hero p{font-size:16px}.preview{height:245px;margin-top:35px}
+ .topbar{height:64px}.topbar .search{max-width:none}.topbar .btn{padding:10px 12px}.topbar .btn:last-child{font-size:0;width:42px}.topbar .btn:last-child:after{content:"↪";font-size:18px}
+ .layout{display:block}.sidebar{position:fixed;z-index:20;left:0;right:0;bottom:0;top:auto;width:100%;height:68px;border:0;border-top:1px solid #ffffff12;display:flex;padding:6px 5px;background:#050b08f2;backdrop-filter:blur(22px)}
+ .sidebar .brand{display:none}.sidebar .navitem{flex:1;justify-content:center;flex-direction:column;gap:2px;margin:0;padding:5px 2px;border:0;font-size:10px}.sidebar .navitem span{display:block;font-size:10px}.sidebar .navitem.active{box-shadow:none;color:var(--g);background:transparent}
+ .sidebar .navitem:nth-of-type(n+6){display:none}.main{padding:20px 14px 90px}.stats{grid-template-columns:1fr 1fr}
+ .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tile{border-radius:13px}.pagehead h2{font-size:22px}
+}
+@media(min-width:701px){.app:after{content:"JADIEL IMG • PRIVATE IMAGE SPACE";position:fixed;right:20px;bottom:15px;font-size:9px;letter-spacing:.15em;color:#ffffff18;pointer-events:none}}
+</style></head>
 <body>
 <div class="loader" id="loader"><div><div class="logo">JADIEL <span>IMG</span></div><div class="loader-ring"></div></div></div>
 <div class="bgfx"><div class="orb"></div><div class="orb"></div><div class="stars"></div></div>
@@ -51,7 +91,7 @@
 
 <div class="modal hidden" id="auth"><div class="card"><button class="btn" style="float:right" onclick="closeAuth()">✕</button><h2 id="authTitle">Entrar</h2><p class="muted" id="authDesc">Acesse seu espaço privado.</p><form onsubmit="authSubmit(event)"><div class="field hidden" id="nameBox"><label>Nome</label><input id="name" maxlength="80"></div><div class="field"><label>E-mail</label><input id="email" type="email" autocomplete="email" required></div><div class="field"><label>Senha</label><input id="password" type="password" minlength="8" required></div><div class="field hidden" id="confirmBox"><label>Confirmar senha</label><input id="confirm" type="password" minlength="8"></div><div class="error" id="authError"></div><button class="btn primary full" id="authBtn">Entrar</button></form><div class="switch"><span id="switchText">Ainda não tem conta?</span><button class="btn" onclick="toggleAuth()">Criar conta</button></div></div></div>
 <div class="modal hidden" id="upload"><div class="card"><button class="btn" style="float:right" onclick="closeUpload()">✕</button><h2>Enviar imagens</h2><p class="muted">Escolha uma ou várias imagens.</p><input id="files" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple style="width:100%;margin:18px 0"><div class="field"><label>Álbum</label><select id="album"><option value="">Sem álbum</option></select></div><button class="btn primary full" onclick="saveFiles()">Enviar agora</button><div class="progress"><i id="prog"></i></div></div></div>
-<div class="toast hidden" id="toast"></div>
+<div class="toast hidden" id="toast"></div><div class="modal hidden" id="viewer"><div class="card" style="max-width:1100px;padding:12px;background:#030705f5"><button class="btn" style="float:right;position:relative;z-index:2" onclick="closeViewer()">✕</button><img id="viewerImg" style="display:block;width:100%;max-height:78vh;object-fit:contain;border-radius:16px" alt=""><div id="viewerName" class="muted" style="padding:10px 5px 2px"></div></div></div>
 
 <script>
 const API=localStorage.getItem('JADIEL_IMG_API')||'';
@@ -87,12 +127,14 @@ else if(currentPage==='profile'){html='<div class="pagehead"><div><h2>Perfil e s
 else {let list=a.filter(x=>currentPage==='favorites'?x.favorite&&!x.deleted:currentPage==='trash'?x.deleted:!x.deleted);const q=$('search').value.toLowerCase();if(q)list=list.filter(x=>x.name.toLowerCase().includes(q));html='<div class="pagehead"><div><h2>'+title+'</h2><div class="muted">'+list.length+' item(ns)</div></div></div><div class="panel" style="margin-top:20px"><div class="gallery">'+(list.length?await gallery(list):'<div class="empty">Nenhuma imagem nesta área.</div>')+'</div></div>'}
 $('main').innerHTML=html;if(currentPage==='home'){const d=$('drop');d.ondragover=e=>{e.preventDefault();d.classList.add('drop-active')};d.ondragleave=()=>d.classList.remove('drop-active');d.ondrop=e=>{e.preventDefault();d.classList.remove('drop-active');saveFileList([...e.dataTransfer.files])}}
 }
-async function gallery(list){return Promise.all(list.map(async x=>{const src=x.data;return '<div class="tile"><img src="'+src+'" alt="'+esc(x.name)+'"><div class="actions"><button class="icon" title="Favoritar" onclick="favorite(\''+x.id+'\')">'+(x.favorite?'♥':'♡')+'</button><button class="icon" title="Excluir" onclick="trash(\''+x.id+'\')">⌫</button></div><div class="caption">'+esc(x.name)+'</div></div>'})).then(x=>x.join(''))}
+async function gallery(list){return Promise.all(list.map(async x=>{const src=x.data;return '<div class="tile" onclick="openViewer(\''+x.id+'\')"><img src="'+src+'" alt="'+esc(x.name)+'"><div class="actions"><button class="icon" title="Favoritar" onclick="event.stopPropagation();favorite(\''+x.id+'\')">'+(x.favorite?'♥':'♡')+'</button><button class="icon" title="Excluir" onclick="event.stopPropagation();trash(\''+x.id+'\')">⌫</button></div><div class="caption">'+esc(x.name)+'</div></div>'})).then(x=>x.join(''))}
 function openUpload(){$('upload').classList.remove('hidden');$('prog').style.width='0%';albums().then(a=>$('album').innerHTML='<option value="">Sem álbum</option>'+a.map(x=>'<option value="'+x.id+'">'+esc(x.name)+'</option>').join(''))}
 function closeUpload(){$('upload').classList.add('hidden')}
 async function saveFiles(){saveFileList([...$('files').files])}
 function fileDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(file)})}
 async function saveFileList(files){if(!files.length)return toast('Selecione pelo menos uma imagem.');let good=files.filter(f=>/^image\/(jpeg|png|webp|gif)$/.test(f.type)&&f.size<=25*1024*1024);if(!good.length)return toast('Formato ou tamanho inválido.');let album=$('album')?.value||'';let existing=await images();let total=existing.reduce((n,x)=>n+x.size,0);for(let i=0;i<good.length;i++){const f=good[i];if(total+f.size>512*1024*1024){toast('Limite local de 512 MB atingido.');break}const data=await fileDataURL(f);await put('images',{id:uid(),userId:user.id,name:f.name,type:f.type,size:f.size,data,albumId:album,favorite:false,deleted:false,createdAt:Date.now()});total+=f.size;$('prog').style.width=((i+1)/good.length*100)+'%'}closeUpload();toast('Imagem(ns) salva(s) no navegador.');render()}
+function openViewer(id){images().then(a=>{const x=a.find(i=>i.id===id);if(!x)return;$('viewerImg').src=x.data;$('viewerName').textContent=x.name;$('viewer').classList.remove('hidden')})}
+function closeViewer(){$('viewer').classList.add('hidden');$('viewerImg').src=''}
 async function favorite(id){let a=await images(),x=a.find(x=>x.id===id);if(x){x.favorite=!x.favorite;await put('images',x);render()}}
 async function trash(id){let a=await images(),x=a.find(x=>x.id===id);if(!x)return;if(x.deleted){if(confirm('Excluir permanentemente esta imagem?'))await del('images',id)}else{x.deleted=true;await put('images',x)}render()}
 async function newAlbum(){const n=prompt('Nome do novo álbum:');if(n?.trim()){await put('albums',{id:uid(),userId:user.id,name:n.trim()});render()}}

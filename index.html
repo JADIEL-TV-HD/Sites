@@ -56,6 +56,33 @@ h1{font-weight:950;text-shadow:0 0 50px #39e58c18}
  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tile{border-radius:13px}.pagehead h2{font-size:22px}
 }
 @media(min-width:701px){.app:after{content:"JADIEL IMG • PRIVATE IMAGE SPACE";position:fixed;right:20px;bottom:15px;font-size:9px;letter-spacing:.15em;color:#ffffff18;pointer-events:none}}
+</style><style id="jadiel-design-system">
+:root{--ease:cubic-bezier(.22,1,.36,1);--ease2:cubic-bezier(.16,1,.3,1)}
+*{scrollbar-width:thin;scrollbar-color:#39e58c44 transparent}
+::selection{background:#39e58c44;color:#fff}
+button,input,select{transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease)}
+button:active{transform:scale(.96)}
+.btn{position:relative;overflow:hidden;isolation:isolate}
+.btn:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,#fff2 50%,transparent 75%);transform:translateX(-130%);transition:transform .7s var(--ease);z-index:-1}
+.btn:hover:before{transform:translateX(130%)}
+.btn.primary:hover{box-shadow:0 16px 45px #20d77b35,0 0 0 1px #9affc855}
+.field input:hover,.field select:hover,.search input:hover{border-color:#39e58c35}
+.field input:focus,.search input:focus{transform:translateY(-1px)}
+.navitem{position:relative;overflow:hidden}
+.navitem:after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2px;border-radius:4px;background:var(--g);transform:scaleX(0);transition:.3s var(--ease)}
+.navitem.active:after{transform:scaleX(1)}
+.hero-inner{animation:heroIn 1s var(--ease2) both}@keyframes heroIn{from{opacity:0;transform:translateY(25px) scale(.98)}to{opacity:1;transform:none}}
+.badge{animation:badgePulse 3s ease-in-out infinite}@keyframes badgePulse{50%{box-shadow:0 0 35px #39e58c18}}
+.preview{animation:floatUI 7s ease-in-out infinite}@keyframes floatUI{50%{transform:perspective(1000px) rotateX(1deg) translateY(-9px)}}
+.stat,.panel,.tile{will-change:transform}
+.stat:hover,.panel:hover{border-color:#39e58c24;box-shadow:0 22px 65px #0006,0 0 35px #39e58c06}
+.tile .actions .icon:hover{background:#39e58c22;border-color:#39e58c66;color:var(--g);transform:translateY(-2px)}
+.empty{border:1px dashed #ffffff0d;border-radius:18px;background:#ffffff02}
+.upload:hover{background:radial-gradient(circle at 50% 0,#39e58c15,transparent 60%),#07100a;border-color:#39e58c70;box-shadow:0 0 45px #39e58c08}
+.toast{animation:toastIn .45s var(--ease2) both}@keyframes toastIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+.modal:not(.hidden) .card{animation:modalIn .45s var(--ease2) both}@keyframes modalIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+.avatar{box-shadow:0 0 0 1px #ffffff12,0 0 25px #39e58c18;transition:.3s}.avatar:hover{transform:scale(1.08) rotate(3deg)}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style></head>
 <body>
 <div class="loader" id="loader"><div><div class="logo">JADIEL <span>IMG</span></div><div class="loader-ring"></div></div></div>
@@ -137,9 +164,11 @@ function openViewer(id){images().then(a=>{const x=a.find(i=>i.id===id);if(!x)ret
 function closeViewer(){$('viewer').classList.add('hidden');$('viewerImg').src=''}
 async function favorite(id){let a=await images(),x=a.find(x=>x.id===id);if(x){x.favorite=!x.favorite;await put('images',x);render()}}
 async function trash(id){let a=await images(),x=a.find(x=>x.id===id);if(!x)return;if(x.deleted){if(confirm('Excluir permanentemente esta imagem?'))await del('images',id)}else{x.deleted=true;await put('images',x)}render()}
-async function newAlbum(){const n=prompt('Nome do novo álbum:');if(n?.trim()){await put('albums',{id:uid(),userId:user.id,name:n.trim()});render()}}
+function newAlbum(){$('albumName').value='';$('albumModal').classList.remove('hidden');setTimeout(()=>$('albumName').focus(),50)}
+function closeAlbumModal(){$('albumModal').classList.add('hidden')}
+async function createAlbum(){const n=$('albumName').value.trim();if(!n)return toast('Digite um nome para o álbum.');await put('albums',{id:uid(),userId:user.id,name:n});closeAlbumModal();toast('Álbum criado.');render()}
 function saveProfile(){const n=$('profileName').value.trim();if(!n)return;user.name=n;const users=JSON.parse(localStorage.getItem('jadiel_img_users')||'{}');if(users[user.email]){users[user.email].name=n;localStorage.setItem('jadiel_img_users',JSON.stringify(users))}$('avatar').textContent=n.charAt(0).toUpperCase();toast('Perfil atualizado.')}
 (async()=>{setTimeout(()=>$('loader').classList.add('out'),650);const email=localStorage.getItem('jadiel_img_session');if(email){const u=JSON.parse(localStorage.getItem('jadiel_img_users')||'{}')[email];if(u){user=u;enter()}}})();
 </script>
-</body>
+<div class="modal hidden" id="albumModal"><div class="card"><button class="btn" style="float:right" onclick="closeAlbumModal()">✕</button><h2>Novo álbum</h2><p class="muted">Crie uma coleção para organizar suas imagens.</p><div class="field"><label>Nome do álbum</label><input id="albumName" maxlength="60" placeholder="Ex.: Viagens 2026"></div><button class="btn primary full" onclick="createAlbum()">Criar álbum</button></div></div></body>
 </html>

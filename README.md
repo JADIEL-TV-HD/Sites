@@ -1,26 +1,42 @@
 # JADIEL IMG
 
-Plataforma de armazenamento e gerenciamento de imagens.
+Site de armazenamento e organização de imagens com interface premium, mobile-first e persistência local.
 
-## Arquivos principais
+## Estrutura
 
-- `index.html`: experiência pública e área do usuário.
-- `gestor.html`: painel administrativo.
-- `api/`: backend a ser conectado.
-- `database/schema.sql`: modelo de dados.
+- `index.html` — landing page + cadastro/login + área completa do usuário.
+- `gestor.html` — painel visual de administração.
+- Não utiliza MySQL, PostgreSQL ou qualquer banco SQL.
+- Não depende de backend para o modo local.
 
-## Importante sobre segurança
+## Armazenamento local
 
-GitHub Pages é hospedagem estática. Ele não executa PHP/Node no servidor e não deve ser usado como armazenamento privado de imagens ou como banco de dados.
+Os dados do modo local ficam no navegador usando `localStorage`.
 
-O frontend foi preparado para consumir uma API externa. Configure:
+As imagens são convertidas para Data URL e armazenadas junto dos dados locais. Isso permite testar o sistema diretamente em hospedagem estática.
 
-`localStorage.setItem('JADIEL_IMG_API','https://SEU-BACKEND.example')`
+### Recursos
 
-e, para o gestor:
+- Cadastro e login local
+- Galeria
+- Upload múltiplo
+- Arrastar e soltar
+- Pesquisa
+- Favoritos
+- Álbuns
+- Lixeira
+- Perfil
+- Dashboard
+- Painel Gestor
+- Limite local de armazenamento
+- Interface responsiva
+- Animações e microinterações
+- Sem MySQL
 
-`localStorage.setItem('JADIEL_IMG_ADMIN_API','https://SEU-BACKEND.example')`
+## Observação
 
-Em produção, use HTTPS, autenticação no servidor, hash de senha, autorização por usuário, proteção CSRF quando aplicável, rate limiting, validação MIME/tamanho e armazenamento privado de objetos.
+O armazenamento no navegador é específico do dispositivo/navegador e não é um armazenamento em nuvem. Limpar os dados do site ou trocar de navegador pode remover os dados locais. Para sincronização entre dispositivos seria necessário um serviço de armazenamento externo.
 
-O modo sem API existente é apenas uma demonstração local no navegador e **não representa armazenamento seguro em produção**.
+## Identidade visual
+
+JADIEL IMG usa uma linguagem visual premium: fundo escuro, verde neon controlado, glassmorphism, iluminação ambiente, tipografia forte, cartões, microinterações e layout adaptativo para celular e desktop.

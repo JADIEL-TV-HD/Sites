@@ -2,7 +2,8 @@
 declare(strict_types=1);
 session_start();
 const APP_NAME='JADIEL IPTV';
-const ADMIN_USER='admin';
+const ADMIN_USER='1234';
+const ADMIN_PASS='1234';
 const DATA_DIR=__DIR__.'/data';
 if(!is_dir(DATA_DIR)) @mkdir(DATA_DIR,0755,true);
 function data_read(string $file,array $default=[]):array{$p=DATA_DIR.'/'.$file;if(!is_file($p))return $default;$d=json_decode((string)@file_get_contents($p),true);return is_array($d)?$d:$default;}

@@ -15,4 +15,16 @@ if(is_file($nf)){ $n=json_decode(@file_get_contents($nf),true); if(is_array($n)&
 <script>
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 document.getElementById('form').onsubmit=async e=>{e.preventDefault();const u=document.getElementById('url').value.trim(),box=document.getElementById('result'),load=document.getElementById('loading');load.className='loading show';box.className='result';try{const r=await fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Falha na consulta');let h='<div class="card"><h2>'+esc(d.site?.title||d.domain)+'</h2><div class="grid"><div class="card"><div class="kv"><span>Domínio</span><b>'+esc(d.domain)+'</b></div><div class="kv"><span>HTTPS</span><b class="'+(d.security?.https?'ok':'warn')+'">'+(d.security?.https?'Ativo':'Não detectado')+'</b></div><div class="kv"><span>HTTP</span><b>'+esc(d.http?.status||'—')+'</b></div><div class="kv"><span>Servidor</span><b>'+esc(d.http?.server||'Não informado')+'</b></div></div><div class="card"><div class="kv"><span>DNS</span><b class="'+(d.dns?.resolved?'ok':'bad')+'">'+(d.dns?.resolved?'Resolvido':'Não resolvido')+'</b></div><div class="kv"><span>Certificado TLS</span><b class="'+(d.security?.tls?'ok':'warn')+'">'+(d.security?.tls?'Válido/obtido':'Não confirmado')+'</b></div><div class="kv"><span>Reputação</span><b>'+esc(d.reputation?.status||'Não consultada')+'</b></div><div class="kv"><span>Consultado em</span><b>'+esc(d.checked_at)+'</b></div></div></div></div>';if(d.reputation?.details)h+='<div class="card"><h3>Reputação pública</h3><p>'+esc(d.reputation.details)+'</p></div>';h+='<div class="card"><h3>Observação</h3><p>Este relatório apresenta sinais técnicos e fontes públicas disponíveis. Ele não pode garantir que ninguém tenha sofrido golpe.</p></div>';box.innerHTML=h;box.className='result show'}catch(err){box.innerHTML='<div class="card"><h2>Não foi possível concluir</h2><p>'+esc(err.message)+'</p></div>';box.className='result show'}finally{load.className='loading'}};
-</script><script>async function votePoll(){const o=document.querySelector('input[name="poll"]:checked');if(!o)return alert('Selecione uma opção.');const r=await fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'vote',option:o.value,poll:'active'})});const d=await r.json();alert(d.ok?'Voto registrado.':'Não foi possível registrar o voto.');}</script></body></html>
+</script><script>
+async function votePoll(){
+ const o=document.querySelector('input[name="poll"]:checked');
+ if(!o)return alert('Selecione uma opção.');
+ const btn=document.querySelector('.poll button'); btn.disabled=true; btn.textContent='ENVIANDO...';
+ try{
+  const r=await fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'vote',option:o.value,poll:'active'})});
+  const d=await r.json();
+  if(!r.ok||!d.ok) throw new Error(d.error||'Não foi possível registrar.');
+  btn.textContent='VOTO REGISTRADO'; btn.style.opacity='.7';
+ }catch(e){btn.disabled=false;btn.textContent='VOTAR';alert(e.message);}
+}
+</script></body></html>

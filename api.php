@@ -1,7 +1,13 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);echo json_encode(['error'=>'Método não permitido']);exit;}
-$in=json_decode(file_get_contents('php://input'),true);$url=trim($in['url']??'');
+$in=json_decode(file_get_contents('php://input'),true);
+if(isset($in['action'])&&$in['action']==='vote'){
+ $f=__DIR__.'/data/poll_votes.json';$votes=is_file($f)?(json_decode(@file_get_contents($f),true)?:[]):[];$option=trim($in['option']??'');$key=hash('sha256',($_SERVER['REMOTE_ADDR']??'').'|'.date('Y-m-d').'|'.($in['poll']??''));
+ if($option===''){http_response_code(400);echo json_encode(['error'=>'Opção inválida']);exit;}
+ $votes[$key]=['option'=>$option,'at'=>date('c')];file_put_contents($f,json_encode($votes,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE),LOCK_EX);echo json_encode(['ok'=>true]);exit;
+}
+$url=trim($in['url']??'');
 if(!filter_var($url,FILTER_VALIDATE_URL)||!preg_match('~^https?://~i',$url)){http_response_code(400);echo json_encode(['error'=>'Informe uma URL HTTP/HTTPS válida.']);exit;}
 $p=parse_url($url);$host=$p['host']??'';$domain=preg_replace('/^www\./i','',$host);
 if(!$domain){http_response_code(400);echo json_encode(['error'=>'Domínio inválido.']);exit;}

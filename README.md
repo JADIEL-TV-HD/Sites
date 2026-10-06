@@ -1,24 +1,30 @@
-# Agente de Atendimento IA — InfinityFree
+# AZION IA — Atendimento profissional
 
-Site de atendimento por texto, visual inspirado no WhatsApp, PHP + JSON e sem MySQL.
+Atendimento por texto com visual inspirado no WhatsApp, PHP + JSON, sem MySQL.
+
+## Acesso por e-mail
+
+O visitante primeiro escolhe SIM ou NÃO para indicar se já possui conta. O AZION envia um código de verificação por e-mail. Somente após a validação o atendimento é liberado.
+
+SIM: informa e-mail e valida o código.
+NÃO: informa nome, e-mail e telefone opcional, depois valida o código.
 
 ## Configuração
-1. Envie o conteúdo do repositório para o htdocs da InfinityFree.
-2. Edite config.php.
-3. Substitua COLE_SUA_CHAVE_GEMINI_AQUI pela sua chave Gemini.
-4. Acesse /admin.php.
-5. Login inicial: admin
-6. Senha inicial: Admin@12345
-7. Cadastre os sistemas, procedimentos e respostas na Base de conhecimento.
 
-## Arquivos principais
-- index.php — atendimento do cliente
-- admin.php — painel administrativo
-- api.php — cadastro, chat, IA e administração
-- data.json — clientes, conversas e conhecimento
-- config.php — configuração da API
+Edite config.php no servidor e informe a chave Gemini, a senha do administrador e a senha de app do Gmail do endereço inovatechinsights@gmail.com.
+
+Não publique credenciais reais no GitHub.
+
+## Arquivos
+
+index.php = experiência do cliente e chat AZION IA.
+admin.php = painel administrativo separado.
+api.php = autenticação, verificação por e-mail, IA e administração.
+data.json = dados em JSON.
+config.php = configurações do servidor.
 
 ## Segurança
-Troque a senha inicial antes de publicar. Não coloque senhas, tokens ou códigos de segurança dos clientes na base de conhecimento. Use HTTPS e revise a política de privacidade/LGPD antes de produção.
 
-Requer PHP com cURL e permissão de escrita no data.json.
+Código expira em 10 minutos, é armazenado com hash e possui limite de tentativas. O chat usa sessão autenticada e não aceita ID de conversa enviado livremente pelo cliente.
+
+Requer PHP com cURL, sockets SSL e permissão de escrita no data.json.

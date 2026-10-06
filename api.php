@@ -77,7 +77,7 @@ if($a==='verify_code'){
  $existing=-1;foreach($d['clients'] as $i=>$c)if(strtolower($c['email']??'')===$email){$existing=$i;break;}
  if($existing>=0)$client=$d['clients'][$existing];else{$client['id']='u_'.bin2hex(random_bytes(8));$client['created_at']=date('c');$d['clients'][]=$client;}
  $cid='c_'.bin2hex(random_bytes(8));$c=['id'=>$cid,'client'=>$client,'status'=>'ia','messages'=>[['role'=>'assistant','text'=>'Olá, '.($client['name']?:'seja bem-vindo').'! Eu sou a AZION IA. Como posso ajudar?','time'=>date('c')]],'updated_at'=>date('c')];
- $d['conversations'][]=$c;save($d);$_SESSION['azion_client']=$client['id'];$_SESSION['azion_cid']=$cid;unset($_SESSION['verify_email']);
+ $d['conversations'][]=$c;save($d);session_regenerate_id(true);$_SESSION['azion_client']=$client['id'];$_SESSION['azion_cid']=$cid;unset($_SESSION['verify_email']);
  out(['ok'=>1,'id'=>$cid,'messages'=>$c['messages']]);
 }
 if($a==='me'){
@@ -96,7 +96,7 @@ if($a==='chat'){
  out(['error'=>'Atendimento não encontrado.'],404);
 }
 
-if($a==='login'){rate('admin:'.ip(),8,900);if(($in['user']??'')===ADMIN_USER&&($in['pass']??'')===ADMIN_PASSWORD){$_SESSION['admin']=1;out(['ok'=>1]);}out(['error'=>'Login inválido.'],401);}
+if($a==='login'){rate('admin:'.ip(),8,900);if(($in['user']??'')===ADMIN_USER&&($in['pass']??'')===ADMIN_PASSWORD){session_regenerate_id(true);$_SESSION['admin']=1;out(['ok'=>1]);}out(['error'=>'Login inválido.'],401);}
 if(empty($_SESSION['admin']))out(['error'=>'Não autorizado.'],401);
 if($_SERVER['REQUEST_METHOD']==='POST' && $a!=='login') require_csrf($in['csrf']??'');
 if($a==='list')out(['conversations'=>$d['conversations'],'csrf'=>csrf()]);

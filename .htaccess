@@ -1,0 +1,4 @@
+Options -Indexes
+<FilesMatch "^(config\.php|data\.json|\.htaccess)$">
+Require all denied
+</FilesMatch>

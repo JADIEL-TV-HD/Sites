@@ -4,6 +4,14 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 function out($x,$s=200){http_response_code($s);echo json_encode($x,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
+function ip(){return $_SERVER['REMOTE_ADDR']??'unknown';}
+function rate($key,$limit,$window=RATE_LIMIT_WINDOW){
+  $f=sys_get_temp_dir().'/azion_rl_'.hash('sha256',$key);$now=time();$x=json_decode(@file_get_contents($f),true)?:['t'=>$now,'n'=>0];
+  if($now-$x['t']>$window)$x=['t'=>$now,'n'=>0];$x['n']++;file_put_contents($f,json_encode($x),LOCK_EX);
+  if($x['n']>$limit)out(['error'=>'Muitas tentativas. Aguarde alguns minutos e tente novamente.'],429);
+}
+function csrf(){if(empty($_SESSION['csrf']))$_SESSION['csrf']=bin2hex(random_bytes(32));return $_SESSION['csrf'];}
+function require_csrf($token){if(!hash_equals(csrf(),(string)$token))out(['error'=>'Sessão de segurança inválida. Recarregue a página.'],403);}
 function clean($x,$n=4000){return mb_substr(trim((string)$x),0,$n);}
 function db(){return json_decode(@file_get_contents(DATA_FILE),true)?:['knowledge'=>[],'clients'=>[],'conversations'=>[],'verifications'=>[]];}
 function save($d){file_put_contents(DATA_FILE,json_encode($d,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX);}
@@ -43,6 +51,7 @@ function gemini($history,$knowledge,$client){
 $d=db();$in=json_decode(file_get_contents('php://input'),true)?:$_POST;$a=$in['action']??'';
 
 if($a==='request_code'){
+ rate('code:'.ip().':'.strtolower(clean($in['email']??'',160)),5,900);
  $email=strtolower(clean($in['email']??'',160));$mode=$in['mode']??'existing';
  if(!email_ok($email))out(['error'=>'Informe um e-mail válido.'],422);
  $client=['name'=>clean($in['name']??'',100),'email'=>$email,'phone'=>clean($in['phone']??'',40)];
@@ -56,6 +65,7 @@ if($a==='request_code'){
  $_SESSION['verify_email']=$email;out(['ok'=>1,'message'=>'Código enviado para o e-mail informado.']);
 }
 if($a==='verify_code'){
+ rate('verify:'.ip(),12,600);
  $email=strtolower(clean($in['email']??$_SESSION['verify_email']??'',160));$code=clean($in['code']??'',10);
  $idx=-1;foreach($d['verifications'] as $i=>$v)if(!$v['used']&&$v['email']===$email){$idx=$i;}
  if($idx<0)out(['error'=>'Código não encontrado. Solicite um novo código.'],400);
@@ -86,9 +96,10 @@ if($a==='chat'){
  out(['error'=>'Atendimento não encontrado.'],404);
 }
 
-if($a==='login'){if(($in['user']??'')===ADMIN_USER&&($in['pass']??'')===ADMIN_PASSWORD){$_SESSION['admin']=1;out(['ok'=>1]);}out(['error'=>'Login inválido.'],401);}
+if($a==='login'){rate('admin:'.ip(),8,900);if(($in['user']??'')===ADMIN_USER&&($in['pass']??'')===ADMIN_PASSWORD){$_SESSION['admin']=1;out(['ok'=>1]);}out(['error'=>'Login inválido.'],401);}
 if(empty($_SESSION['admin']))out(['error'=>'Não autorizado.'],401);
-if($a==='list')out(['conversations'=>$d['conversations']]);
+if($_SERVER['REQUEST_METHOD']==='POST' && $a!=='login') require_csrf($in['csrf']??'');
+if($a==='list')out(['conversations'=>$d['conversations'],'csrf'=>csrf()]);
 if($a==='knowledge'){if($_SERVER['REQUEST_METHOD']==='POST'){$d['knowledge']=$in['knowledge']??[];save($d);}out(['knowledge'=>$d['knowledge']]);}
 if($a==='take'){foreach($d['conversations'] as &$c)if($c['id']===$in['id'])$c['status']='human';save($d);out(['ok'=>1]);}
 if($a==='reply'){foreach($d['conversations'] as &$c)if($c['id']===$in['id']){$c['status']='human';$c['messages'][]=['role'=>'human','text'=>clean($in['message']??''),'time'=>date('c')];}$d['conversations']=$d['conversations'];save($d);out(['ok'=>1]);}

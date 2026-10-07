@@ -128,8 +128,12 @@ if($a==='verify_code'){
  out(['ok'=>1,'id'=>$cid,'messages'=>$c['messages']]);
 }
 if($a==='me'){
- if(empty($_SESSION['azion_client']))out(['authenticated'=>false]);
- out(['authenticated'=>true,'id'=>$_SESSION['azion_cid']]);
+ if(empty($_SESSION['azion_client'])||empty($_SESSION['azion_cid']))out(['authenticated'=>false]);
+ foreach($d['conversations'] as $cv)if(($cv['id']??'')===$_SESSION['azion_cid']&&($cv['client']['id']??'')===$_SESSION['azion_client']){
+  if(!empty($cv['client']['banned'])){session_destroy();out(['authenticated'=>false,'banned'=>true],403);}
+  out(['authenticated'=>true,'id'=>$cv['id'],'messages'=>$cv['messages']]);
+ }
+ session_destroy();out(['authenticated'=>false]);
 }
 if($a==='chat'){
  rate('chat:'.ip(),60,60);

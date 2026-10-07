@@ -1,21 +1,30 @@
 <?php
 require __DIR__.'/config.php';
+ini_set('display_errors','0');
 header('Content-Type: application/json; charset=utf-8');
+register_shutdown_function(function(){
+  $e=error_get_last();
+  if($e && in_array($e['type'],[E_ERROR,E_PARSE,E_CORE_ERROR,E_COMPILE_ERROR],true)){
+    if(!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+    http_response_code(500);
+    echo json_encode(['error'=>'Erro interno no servidor. Verifique a configuração do AZION IA.'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+  }
+});
 
 function out($x,$s=200){http_response_code($s);echo json_encode($x,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
 function ip(){return $_SERVER['REMOTE_ADDR']??'unknown';}
 function rate($key,$limit,$window=RATE_LIMIT_WINDOW){
-  $f=sys_get_temp_dir().'/azion_rl_'.hash('sha256',$key);$now=time();$x=json_decode(@file_get_contents($f),true)?:['t'=>$now,'n'=>0];
-  if($now-$x['t']>$window)$x=['t'=>$now,'n'=>0];$x['n']++;file_put_contents($f,json_encode($x),LOCK_EX);
+  $tmp=function_exists('sys_get_temp_dir')?sys_get_temp_dir():__DIR__;$f=$tmp.'/azion_rl_'.hash('sha256',$key);$now=time();$x=json_decode(@file_get_contents($f),true)?:['t'=>$now,'n'=>0];
+  if($now-$x['t']>$window)$x=['t'=>$now,'n'=>0];$x['n']++;@file_put_contents($f,json_encode($x),LOCK_EX);
   if($x['n']>$limit)out(['error'=>'Muitas tentativas. Aguarde alguns minutos e tente novamente.'],429);
 }
 function csrf(){if(empty($_SESSION['csrf']))$_SESSION['csrf']=bin2hex(random_bytes(32));return $_SESSION['csrf'];}
 function require_csrf($token){if(!hash_equals(csrf(),(string)$token))out(['error'=>'Sessão de segurança inválida. Recarregue a página.'],403);}
-function clean($x,$n=4000){return mb_substr(trim((string)$x),0,$n);}
+function clean($x,$n=4000){$x=trim((string)$x);return function_exists('mb_substr')?mb_substr($x,0,$n):substr($x,0,$n);}
 function plain_ai($x){$x=str_replace(['**','__','`','*'],'',$x);return trim($x);}
 function client_banned($client){return !empty($client['banned']);}
 function db(){return json_decode(@file_get_contents(DATA_FILE),true)?:['knowledge'=>[],'clients'=>[],'conversations'=>[],'verifications'=>[]];}
-function save($d){file_put_contents(DATA_FILE,json_encode($d,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX);}
+function save($d){return @file_put_contents(DATA_FILE,json_encode($d,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX)!==false;}
 function email_ok($e){return filter_var($e,FILTER_VALIDATE_EMAIL)!==false;}
 function code_send($to,$code){
   $pwd=str_replace(' ','',trim(SMTP_APP_PASSWORD));

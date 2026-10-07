@@ -228,5 +228,5 @@ if($a==='ban'||$a==='unban'){
 }
 if($a==='knowledge'){if($_SERVER['REQUEST_METHOD']==='POST'){$d['knowledge']=$in['knowledge']??[];save($d);}out(['knowledge'=>$d['knowledge']]);}
 if($a==='take'){foreach($d['conversations'] as &$c)if($c['id']===$in['id'])$c['status']='human';save($d);out(['ok'=>1]);}
-if($a==='reply'){foreach($d['conversations'] as &$c)if($c['id']===$in['id']){$c['status']='human';$c['messages'][]=['role'=>'human','text'=>clean($in['message']??''),'time'=>date('c');}save($d);out(['ok'=>1]);}
+if($a==='reply'){foreach($d['conversations'] as &$c)if($c['id']===$in['id']){$c['status']='human';$c['messages'][]=['role'=>'human','text'=>clean($in['message']??''),'time'=>date('c')];}save($d);out(['ok'=>1]);}
 out(['error'=>'Ação inválida.'],400);

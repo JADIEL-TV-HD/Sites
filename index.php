@@ -34,6 +34,6 @@ async function verifyCode(){try{const j=await api({action:'verify_code',email,co
 function msg(t,c){const d=document.createElement('div');d.className='msg '+c;d.textContent=t;$('msgs').appendChild(d);$('msgs').scrollTop=$('msgs').scrollHeight}
 $('bar').onsubmit=async e=>{e.preventDefault();const t=$('text').value.trim();if(!t)return;$('text').value='';msg(t,'out');$('typing').classList.remove('hidden');try{const j=await api({action:'chat',message:t});msg(j.reply,'in')}catch(e){msg(e.message,'in')}finally{$('typing').classList.add('hidden')}}
 $('profile').addEventListener('click',()=>{$('profilebox').classList.remove('hidden')});function closeProfile(){$('profilebox').classList.add('hidden')}
-(async()=>{try{const j=await api({action:'me'});if(j.authenticated){$('gate').classList.add('hidden')}}catch(e){}})();
+
 </script>
 </body></html>

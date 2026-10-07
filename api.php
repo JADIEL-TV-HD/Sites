@@ -57,9 +57,8 @@ function code_send($to,$code){
         "To: <".$to.">\r\n".
         "Subject: Seu código de verificação AZION IA\r\n".
         "MIME-Version: 1.0\r\n".
-        "Content-Type: text/plain; charset=UTF-8\r\n\r\n".
-        "Seu código de verificação AZION IA é: ".$code."\r\n\r\n".
-        "O código expira em ".(int)(CODE_TTL/60)." minutos. Se você não solicitou este código, ignore este e-mail.\r\n";
+        "Content-Type: text/html; charset=UTF-8\r\n\r\n".
+        "<!doctype html><html lang='pt-BR'><body style='margin:0;background:#f1f5f4;font-family:Arial,sans-serif;color:#17201e'><div style='max-width:620px;margin:30px auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 10px 35px rgba(0,0,0,.10)'><div style='background:linear-gradient(135deg,#075e54,#0b806f);padding:30px;text-align:center;color:#fff'><div style='font-size:28px;font-weight:800;letter-spacing:.5px'>AZION IA <span style='display:inline-block;background:#1686f8;border-radius:50%;font-size:14px;width:20px;height:20px;line-height:20px'>✓</span></div><div style='margin-top:7px;opacity:.9'>Verificação segura de acesso</div></div><div style='padding:34px 30px;text-align:center'><h1 style='margin:0 0 10px;font-size:24px'>Seu código de verificação</h1><p style='color:#667781;line-height:1.6'>Use o código abaixo para confirmar seu e-mail e acessar o atendimento da AZION IA.</p><div style='margin:26px auto;padding:20px;background:#e9f7f2;border:2px dashed #0b806f;border-radius:16px;font-size:36px;font-weight:800;letter-spacing:9px;color:#075e54'>".$code."</div><p style='color:#667781'>O código expira em ".(int)(CODE_TTL/60)." minutos.</p><div style='margin:24px 0;padding:14px;background:#f7f9f8;border-radius:12px;text-align:left;color:#53615d;font-size:13px;line-height:1.5'><b>Importante:</b> nunca compartilhe este código com outras pessoas. A AZION IA nunca solicitará seu código por mensagem.</div></div><div style='background:#f4f7f6;padding:20px;text-align:center;color:#7a8582;font-size:12px'>Se você não solicitou este código, ignore este e-mail.<br>AZION IA • Atendimento inteligente</div></div></body></html>\r\n";
   $body=preg_replace('/^\./m','..',$body);
   $send($body.'.'); if(!$expect(250)){fclose($fp);return false;}
   $send('QUIT'); $read(); fclose($fp); return true;

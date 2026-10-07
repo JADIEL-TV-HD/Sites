@@ -133,7 +133,7 @@ if($a==='chat'){
  out(['error'=>'Atendimento não encontrado.'],404);
 }
 
-if($a==='login'){rate('admin:'.ip(),8,900);if(($in['user']??'')===ADMIN_USER&&($in['pass']??'')===ADMIN_PASSWORD){session_regenerate_id(true);$_SESSION['admin']=1;out(['ok'=>1]);}out(['error'=>'Login inválido.'],401);}
+if($a==='login'){rate('admin:'.ip(),8,900);if(($in['user']??'')===ADMIN_USER&&($in['pass']??'')===ADMIN_PASSWORD){session_regenerate_id(true);$_SESSION['admin']=1;out(['ok'=>1,'csrf'=>csrf()]);}out(['error'=>'Login inválido.'],401);}
 if(empty($_SESSION['admin']))out(['error'=>'Não autorizado.'],401);
 if($_SERVER['REQUEST_METHOD']==='POST' && $a!=='login') require_csrf($in['csrf']??'');
 if($a==='list')out(['conversations'=>$d['conversations'],'csrf'=>csrf()]);

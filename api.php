@@ -71,10 +71,10 @@ function smtp_send($to,$code){
   $send('DATA');if(!$expect(354)){fclose($fp);return false;}
   $body="From: ".MAIL_FROM_NAME." <".SMTP_USER.">\r\n".
         "To: <".$to.">\r\n".
-        "Subject: Seu código de verificação AZION IA\r\n".
+        "Subject: Seu código de verificação • AZION IA\r\n".
         "MIME-Version: 1.0\r\n".
         "Content-Type: text/html; charset=UTF-8\r\n\r\n".
-        "<html><body style='font-family:Arial,sans-serif'><h2>AZION IA</h2><p>Seu código de verificação:</p><div style='font-size:34px;font-weight:bold;letter-spacing:8px'>".$code."</div><p>O código expira em ".(int)(CODE_TTL/60)." minutos.</p></body></html>\r\n";
+        "<!doctype html><html><body style='margin:0;padding:0;background:#f2f6f5;font-family:Arial,Helvetica,sans-serif;color:#17332f'><table width='100%' cellpadding='0' cellspacing='0' style='background:#f2f6f5;padding:36px 12px'><tr><td align='center'><table width='100%' cellpadding='0' cellspacing='0' style='max-width:560px;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.10)'><tr><td style='background:#075e54;padding:30px;text-align:center;color:#fff'><div style='font-size:28px;font-weight:800'>AZION IA</div><div style='margin-top:7px;font-size:14px'>Atendimento inteligente e seguro</div></td></tr><tr><td style='padding:34px 32px;text-align:center'><div style='font-size:15px;color:#60716d;margin-bottom:10px'>Seu código de verificação é</div><div style='display:inline-block;background:#edf8f4;border:1px solid #cceee2;border-radius:16px;padding:18px 26px;font-size:38px;font-weight:800;letter-spacing:9px;color:#075e54'>".$code."</div><p style='font-size:15px;line-height:1.6;color:#52635f;margin:24px 0 8px'>Digite este código no AZION IA para confirmar seu e-mail e continuar.</p><p style='font-size:13px;color:#8a9995;margin:0'>Este código expira em ".(int)(CODE_TTL/60)." minutos.</p></td></tr><tr><td style='padding:20px 32px;background:#f8faf9;text-align:center;font-size:12px;color:#7b8985;line-height:1.6'>Se você não solicitou este código, ignore este e-mail.<br>Nunca compartilhe seu código com ninguém.<br><strong style='color:#075e54'>AZION IA • JADIEL</strong></td></tr></table></td></tr></table></body></html>\r\n";
   $body=preg_replace('/^\./m','..',$body);
   $send($body.'.');if(!$expect(250)){fclose($fp);return false;}
   $send('QUIT');$read();fclose($fp);return true;
@@ -82,9 +82,9 @@ function smtp_send($to,$code){
 function code_send($to,$code){
   if(smtp_send($to,$code))return true;
   if(!function_exists('mail'))return false;
-  $subject='Seu código de verificação AZION IA';
+  $subject='Seu código de verificação • AZION IA';
   $headers="From: ".MAIL_FROM_NAME." <".SMTP_USER.">\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n";
-  $html="<html><body style='font-family:Arial,sans-serif'><h2>AZION IA</h2><p>Seu código de verificação:</p><div style='font-size:34px;font-weight:bold;letter-spacing:8px'>".$code."</div><p>O código expira em ".(int)(CODE_TTL/60)." minutos.</p></body></html>";
+  $html="<!doctype html><html><body style='margin:0;padding:0;background:#f2f6f5;font-family:Arial,Helvetica,sans-serif;color:#17332f'><table width='100%' cellpadding='0' cellspacing='0' style='background:#f2f6f5;padding:36px 12px'><tr><td align='center'><table width='100%' cellpadding='0' cellspacing='0' style='max-width:560px;background:#fff;border-radius:24px;overflow:hidden'><tr><td style='background:#075e54;padding:30px;text-align:center;color:#fff'><div style='font-size:28px;font-weight:800'>AZION IA</div><div style='margin-top:7px;font-size:14px'>Atendimento inteligente e seguro</div></td></tr><tr><td style='padding:34px 32px;text-align:center'><div style='font-size:15px;color:#60716d;margin-bottom:10px'>Seu código de verificação é</div><div style='display:inline-block;background:#edf8f4;border:1px solid #cceee2;border-radius:16px;padding:18px 26px;font-size:38px;font-weight:800;letter-spacing:9px;color:#075e54'>".$code."</div><p style='font-size:15px;line-height:1.6;color:#52635f;margin:24px 0 8px'>Digite este código no AZION IA para confirmar seu e-mail e continuar.</p><p style='font-size:13px;color:#8a9995'>Este código expira em ".(int)(CODE_TTL/60)." minutos.</p></td></tr><tr><td style='padding:20px 32px;background:#f8faf9;text-align:center;font-size:12px;color:#7b8985;line-height:1.6'>Se você não solicitou este código, ignore este e-mail.<br>Nunca compartilhe seu código com ninguém.<br><strong style='color:#075e54'>AZION IA • JADIEL</strong></td></tr></table></td></tr></table></body></html>";
   return @mail($to,$subject,$html,$headers);
 }
 function create_code($d,$email,$client=[]){

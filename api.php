@@ -93,7 +93,7 @@ function gemini($history,$knowledge,$client){
   if($status===401||$status===403||$status===429||$status===500||$status===503)continue;
   break;
  }
- return ['error'=>'O serviço de inteligência está temporariamente indisponível. Tente novamente em instantes.'];
+ return ['error'=>'AZION IA ESTÁ PASSANDO POR UMA MANUTENÇÃO. AGUARDE OU TENTE MAIS TARDE.'];
 }
 $d=db();$in=json_decode(file_get_contents('php://input'),true)?:$_POST;$a=$in['action']??'';
 

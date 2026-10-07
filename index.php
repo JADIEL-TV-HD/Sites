@@ -10,7 +10,7 @@
 
 <div id="gate" class="gate"><div class="card">
 <div class="profile"><div class="bigava">AZ</div><div><h1>AZION IA <span class="verified">✓</span></h1><div class="sub">Atendimento inteligente e profissional</div></div></div>
-<div id="step0"><p>Olá! Eu sou a <b>AZION IA</b>. Antes de iniciar o atendimento, preciso confirmar uma informação.</p><p><b>Você já tem uma conta no AZION IA?</b></p><div class="actions"><button type="button" class="yes" id="btnExisting">SIM</button><button type="button" class="no" id="btnNew">NÃO</button></div></div>
+<div id="step0"><p>Olá! Eu sou a <b>AZION IA</b>. Antes de iniciar o atendimento, preciso confirmar uma informação.</p><p><b>Você já tem uma conta no AZION IA?</b></p><div class="actions"><button type="button" class="yes" id="btnExisting" onclick="window.AZION_SHOW_EXISTING()">SIM</button><button type="button" class="no" id="btnNew" onclick="window.AZION_SHOW_NEW()">NÃO</button></div></div>
 <div id="step1" class="hidden"><button type="button" class="back" id="btnBack1">← Voltar</button><h2 id="formTitle">Entrar</h2><p id="formDesc">Informe o e-mail da sua conta para receber o código.</p><input id="name" class="field hidden" placeholder="Seu nome"><input id="email" class="field" type="email" placeholder="Seu e-mail"><input id="phone" class="field hidden" placeholder="Telefone (opcional)"><button type="button" class="sendcode" id="btnRequestCode">Enviar código de verificação</button></div>
 <div id="step2" class="hidden"><button type="button" class="back" id="btnBack2">← Voltar</button><h2>Verificar e-mail</h2><p>Digite o código de 6 dígitos enviado para <b id="shownEmail"></b>.</p><input id="code" class="field" inputmode="numeric" maxlength="6" placeholder="Código de verificação"><button type="button" class="sendcode" id="btnVerifyCode">Verificar e entrar</button><p id="resend" class="sub"></p></div>
 <p class="danger">Nunca informe senhas, tokens ou códigos de segurança de outros serviços.</p>
@@ -154,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function(){
     $('msgs').scrollTop=$('msgs').scrollHeight;
   }
 
+  window.AZION_SHOW_EXISTING=showExisting;
+  window.AZION_SHOW_NEW=showNew;
   $('btnExisting').addEventListener('click',showExisting);
   $('btnNew').addEventListener('click',showNew);
   $('btnBack1').addEventListener('click',goBack);

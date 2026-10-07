@@ -17,17 +17,53 @@ function db(){return json_decode(@file_get_contents(DATA_FILE),true)?:['knowledg
 function save($d){file_put_contents(DATA_FILE,json_encode($d,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT),LOCK_EX);}
 function email_ok($e){return filter_var($e,FILTER_VALIDATE_EMAIL)!==false;}
 function code_send($to,$code){
-  $pwd=str_replace(' ','',SMTP_APP_PASSWORD);
+  $pwd=str_replace(' ','',trim(SMTP_APP_PASSWORD));
   if(!$pwd || str_starts_with($pwd,'COLE_')) return false;
-  $fp=@stream_socket_client('ssl://'.SMTP_HOST.':'.SMTP_PORT,$errno,$errstr,15);
+
+  // Gmail: SMTP submission com STARTTLS na porta 587.
+  $fp=@stream_socket_client('tcp://'.SMTP_HOST.':587',$errno,$errstr,20);
   if(!$fp)return false;
-  $read=function()use($fp){return fgets($fp,2048);};
-  $cmd=function($s)use($fp,$read){fwrite($fp,$s."\r\n");return $read();};
-  $read(); $cmd('EHLO azion.local'); $cmd('AUTH LOGIN');
-  $cmd(base64_encode(SMTP_USER)); $cmd(base64_encode($pwd));
-  $cmd('MAIL FROM:<'.SMTP_USER.'>'); $cmd('RCPT TO:<'.$to.'>'); $cmd('DATA');
-  $body="From: ".MAIL_FROM_NAME." <".SMTP_USER.">\r\nTo: <".$to.">\r\nSubject: Seu código de verificação AZION IA\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nSeu código de verificação AZION IA é: ".$code."\r\n\r\nO código expira em 10 minutos. Se você não solicitou este código, ignore este e-mail.\r\n.";
-  $cmd($body);$cmd('QUIT');fclose($fp);return true;
+  stream_set_timeout($fp,20);
+
+  $read=function()use($fp){
+    $out='';
+    while(($line=fgets($fp,4096))!==false){
+      $out.=$line;
+      if(strlen($line)<4 || $line[3]===' ') break;
+    }
+    return $out;
+  };
+  $expect=function($codes)use($read){
+    $r=$read();
+    $ok=false;
+    foreach((array)$codes as $code) if(str_starts_with($r,(string)$code)){$ok=true;break;}
+    return $ok;
+  };
+  $send=function($s)use($fp){return fwrite($fp,$s."\r\n")!==false;};
+
+  if(!$expect(220)){fclose($fp);return false;}
+  $send('EHLO azion.local'); if(!$expect(250)){fclose($fp);return false;}
+  $send('STARTTLS'); if(!$expect(220)){fclose($fp);return false;}
+  if(!stream_socket_enable_crypto($fp,true,STREAM_CRYPTO_METHOD_TLS_CLIENT)){fclose($fp);return false;}
+  $send('EHLO azion.local'); if(!$expect(250)){fclose($fp);return false;}
+  $send('AUTH LOGIN'); if(!$expect(334)){fclose($fp);return false;}
+  $send(base64_encode(SMTP_USER)); if(!$expect(334)){fclose($fp);return false;}
+  $send(base64_encode($pwd)); if(!$expect(235)){fclose($fp);return false;}
+  $send('MAIL FROM:<'.SMTP_USER.'>'); if(!$expect(250)){fclose($fp);return false;}
+  $send('RCPT TO:<'.$to.'>'); if(!$expect([250,251])){fclose($fp);return false;}
+  $send('DATA'); if(!$expect(354)){fclose($fp);return false;}
+
+  $body="From: ".MAIL_FROM_NAME." <".SMTP_USER.">\r\n".
+        "To: <".$to.">\r\n".
+        "Subject: Seu código de verificação AZION IA\r\n".
+        "MIME-Version: 1.0\r\n".
+        "Content-Type: text/plain; charset=UTF-8\r\n\r\n".
+        "Seu código de verificação AZION IA é: ".$code."\r\n\r\n".
+        "O código expira em ".(int)(CODE_TTL/60)." minutos. Se você não solicitou este código, ignore este e-mail.\r\n";
+  // SMTP exige que uma linha iniciada por ponto seja escapada.
+  $body=preg_replace('/^\./m','..',$body);
+  $send($body.'.'); if(!$expect(250)){fclose($fp);return false;}
+  $send('QUIT'); $read(); fclose($fp); return true;
 }
 function create_code($d,$email,$client=[]){
   $code=(string)random_int(100000,999999);

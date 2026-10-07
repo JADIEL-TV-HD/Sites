@@ -91,14 +91,18 @@ function gemini($history,$knowledge,$client){
   $idx=($start+$n)%$count;$key=$keys[$idx];
   $ch=curl_init('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode(GEMINI_MODEL).':generateContent');
   curl_setopt_array($ch,[CURLOPT_POST=>1,CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>45,CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-goog-api-key: '.$key],CURLOPT_POSTFIELDS=>json_encode(['contents'=>$contents,'tools'=>[['google_search'=>new stdClass()]],'generationConfig'=>['temperature'=>.25,'maxOutputTokens'=>1200]])]);
-  $body=curl_exec($ch);$status=curl_getinfo($ch,CURLINFO_HTTP_CODE);curl_close($ch);$j=json_decode($body,true);
+  $body=curl_exec($ch);
+  $curlError=curl_error($ch);
+  $status=curl_getinfo($ch,CURLINFO_HTTP_CODE);
+  curl_close($ch);
+  $j=json_decode($body,true);
   if($status>=200&&$status<300){
    $_SESSION['gemini_key_index']=($idx+1)%$count;
    return ['text'=>plain_ai($j['candidates'][0]['content']['parts'][0]['text']??'Não consegui gerar uma resposta.')];
   }
-  $lastError=clean($j['error']['message']??'Erro da API.',500);
-  if($status===401||$status===403||$status===429||$status===500||$status===503)continue;
-  break;
+  $lastError=clean($j['error']['message']??($curlError?:'Erro da API.'),500);
+  // Falhou esta chave ou a conexão? Tenta automaticamente a próxima.
+  continue;
  }
  return ['error'=>'AZION IA ESTÁ PASSANDO POR UMA MANUTENÇÃO. AGUARDE OU TENTE MAIS TARDE.'];
 }

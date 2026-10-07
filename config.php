@@ -12,6 +12,8 @@ const GEMINI_API_KEYS=[
  'COLE_SUA_CHAVE_GEMINI_10'
 ];
 const GEMINI_MODEL='gemini-2.5-flash';
+const OPENROUTER_API_KEY='COLE_SUA_CHAVE_OPENROUTER_AQUI';
+const OPENROUTER_MODEL='openrouter/free:online';
 const ADMIN_USER='admin';
 const ADMIN_PASSWORD='TROQUE_ESTA_SENHA';
 const DATA_FILE=__DIR__.'/data.json';

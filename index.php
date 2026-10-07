@@ -10,7 +10,7 @@
 
 <div id="gate" class="gate"><div class="card">
 <div class="profile"><div class="bigava">AZ</div><div><h1>AZION IA <span class="verified">✓</span></h1><div class="sub">Atendimento inteligente e profissional</div></div></div>
-<div id="step0"><p>Olá! Eu sou a <b>AZION IA</b>. Antes de iniciar o atendimento, preciso confirmar uma informação.</p><p><b>Você já tem uma conta no AZION IA?</b></p><div class="actions"><button type="button" class="yes" id="btnExisting" onclick="document.getElementById('step0').classList.add('hidden');document.getElementById('step2').classList.add('hidden');document.getElementById('step1').classList.remove('hidden');document.getElementById('formTitle').textContent='Entrar no AZION IA';document.getElementById('formDesc').textContent='Informe o e-mail da sua conta para receber o código.';return false;">SIM</button><button type="button" class="no" id="btnNew" onclick="document.getElementById('step0').classList.add('hidden');document.getElementById('step2').classList.add('hidden');document.getElementById('step1').classList.remove('hidden');document.getElementById('formTitle').textContent='Criar acesso';document.getElementById('formDesc').textContent='Informe seus dados para criar o acesso ao AZION IA.';document.getElementById('name').classList.remove('hidden');document.getElementById('phone').classList.remove('hidden');return false;">NÃO</button></div></div>
+<div id="step0"><p>Olá! Eu sou a <b>AZION IA</b>. Antes de iniciar o atendimento, preciso confirmar uma informação.</p><p><b>Você já tem uma conta no AZION IA?</b></p><div class="actions"><button type="button" class="yes" id="btnExisting">SIM</button><button type="button" class="no" id="btnNew">NÃO</button></div></div>
 <div id="step1" class="hidden"><button type="button" class="back" id="btnBack1">← Voltar</button><h2 id="formTitle">Entrar</h2><p id="formDesc">Informe o e-mail da sua conta para receber o código.</p><input id="name" class="field hidden" placeholder="Seu nome"><input id="email" class="field" type="email" placeholder="Seu e-mail"><input id="phone" class="field hidden" placeholder="Telefone (opcional)"><button type="button" class="sendcode" id="btnRequestCode">Enviar código de verificação</button></div>
 <div id="step2" class="hidden"><button type="button" class="back" id="btnBack2">← Voltar</button><h2>Verificar e-mail</h2><p>Digite o código de 6 dígitos enviado para <b id="shownEmail"></b>.</p><input id="code" class="field" inputmode="numeric" maxlength="6" placeholder="Código de verificação"><button type="button" class="sendcode" id="btnVerifyCode">Verificar e entrar</button><p id="resend" class="sub"></p></div>
 <p class="danger">Nunca informe senhas, tokens ou códigos de segurança de outros serviços.</p>
@@ -19,22 +19,177 @@
 <div id="profilebox" class="profilebox hidden"><div class="card"><button type="button" class="close" id="btnCloseProfile">×</button><div class="bigava" style="margin:auto">AZ</div><h2>AZION IA <span class="verified">✓</span></h2><p>Assistente profissional de atendimento. Clique no botão acima do chat para conhecer o perfil da IA.</p><p class="sub">Atendimento por texto • Inteligência artificial</p></div></div>
 <div id="azmodal" class="azmodal" aria-hidden="true"><div class="azmodal-card" role="dialog" aria-modal="true"><div class="azmodal-icon">✓</div><h3 id="azmodalTitle" class="azmodal-title">AZION IA</h3><p id="azmodalText" class="azmodal-text"></p><div class="azmodal-actions"><button id="azmodalCancel" class="azmodal-cancel" type="button">Fechar</button><button id="azmodalOk" class="azmodal-ok" type="button">Continuar</button></div></div></div>
 <script>
-const $=id=>document.getElementById(id);
-let mode='existing',email='';
-function showModal(message,title='AZION IA',okText='Entendi',cancel=true){$('azmodalTitle').textContent=title;$('azmodalText').textContent=message;$('azmodalOk').textContent=okText;$('azmodalCancel').style.display=cancel?'block':'none';$('azmodal').classList.add('show');$('azmodal').setAttribute('aria-hidden','false')}
-function closeModal(){$('azmodal').classList.remove('show');$('azmodal').setAttribute('aria-hidden','true')}
-$('azmodalOk').addEventListener('click',closeModal);$('azmodalCancel').addEventListener('click',closeModal);$('azmodal').addEventListener('click',e=>{if(e.target.id==='azmodal')closeModal()});
-async function api(data){const r=await fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const j=await r.json();if(!r.ok)throw Error(j.error||'Não foi possível concluir.');return j}
-function showExisting(){mode='existing';$('step2').classList.add('hidden');$('step0').classList.add('hidden');$('step1').classList.remove('hidden');$('formTitle').textContent='Entrar no AZION IA';$('formDesc').textContent='Informe o e-mail da sua conta para receber o código.'}
-$('btnExisting').addEventListener('click',showExisting);$('btnNew').addEventListener('click',showNew);$('btnBack1').addEventListener('click',goBack);$('btnBack2').addEventListener('click',goBack);$('btnRequestCode').addEventListener('click',requestCode);$('btnVerifyCode').addEventListener('click',verifyCode);$('btnCloseProfile').addEventListener('click',closeProfile);
-function showNew(){mode='new';$('step2').classList.add('hidden');$('step0').classList.add('hidden');$('step1').classList.remove('hidden');$('formTitle').textContent='Criar acesso';$('formDesc').textContent='Informe seus dados para criar o acesso ao AZION IA.';$('name').classList.remove('hidden');$('phone').classList.remove('hidden')}
-function goBack(){$('step1').classList.add('hidden');$('step2').classList.add('hidden');$('step0').classList.remove('hidden')}
-async function requestCode(){try{email=$('email').value.trim();if(mode==='new'&&!$('name').value.trim())throw Error('Informe seu nome.');const j=await api({action:'request_code',mode,email,name:$('name').value,phone:$('phone').value});$('shownEmail').textContent=email;$('step1').classList.add('hidden');$('step2').classList.remove('hidden');$('resend').textContent='O código expira em 10 minutos.'}catch(e){showModal(e.message,'Não foi possível continuar','Entendi',false)}}
-async function verifyCode(){try{const j=await api({action:'verify_code',email,code:$('code').value.trim()});$('gate').classList.add('hidden');j.messages.forEach(x=>msg(x.text,x.role==='assistant'?'in':'out'))}catch(e){showModal(e.message,'Código não validado','Entendi',false)}}
-function msg(t,c){const d=document.createElement('div');d.className='msg '+c;const text=String(t||'');if(c==='in'&&/telegram/i.test(text)&&/instagram/i.test(text)){const clean=text.replace(/https?:\\/\\S+/gi,'').trim();if(clean){const p=document.createElement('div');p.textContent=clean;d.appendChild(p)}const actions=document.createElement('div');actions.className='social-actions';const tg=document.createElement('a');tg.className='social-btn';tg.href=['https:','//t.me/','JADIEL_TM'].join('');tg.target='_blank';tg.rel='noopener noreferrer';tg.textContent='Telegram';actions.appendChild(tg);const ig=document.createElement('a');ig.className='social-btn instagram';ig.href=['https:','//www.instagram.com/','jadiel_strb_brd?stkn=cmZoNWxmcHo3ZGd5'].join('');ig.target='_blank';ig.rel='noopener noreferrer';ig.textContent='Instagram';actions.appendChild(ig);d.appendChild(actions)}else d.textContent=text;$('msgs').appendChild(d);$('msgs').scrollTop=$('msgs').scrollHeight}
-$('bar').onsubmit=async e=>{e.preventDefault();const t=$('text').value.trim();if(!t)return;$('text').value='';msg(t,'out');$('typing').classList.remove('hidden');try{const j=await api({action:'chat',message:t});msg(j.reply,'in')}catch(e){msg(e.message,'in')}finally{$('typing').classList.add('hidden')}}
-$('profile').addEventListener('click',()=>{$('profilebox').classList.remove('hidden')});function closeProfile(){$('profilebox').classList.add('hidden')}
-(async()=>{try{const j=await api({action:'me'});if(j.authenticated){$('gate').classList.add('hidden');$('msgs').innerHTML='';(j.messages||[]).forEach(x=>msg(x.text,x.role==='assistant'||x.role==='human'?'in':'out'))}}catch(e){}})();
+'use strict';
 
+document.addEventListener('DOMContentLoaded', function(){
+  const $ = id => document.getElementById(id);
+  let mode = 'existing';
+  let email = '';
+
+  function showModal(message,title='AZION IA',okText='Entendi',cancel=false){
+    $('azmodalTitle').textContent=title;
+    $('azmodalText').textContent=message;
+    $('azmodalOk').textContent=okText;
+    $('azmodalCancel').style.display=cancel?'block':'none';
+    $('azmodal').classList.add('show');
+    $('azmodal').setAttribute('aria-hidden','false');
+  }
+  function closeModal(){
+    $('azmodal').classList.remove('show');
+    $('azmodal').setAttribute('aria-hidden','true');
+  }
+
+  async function api(data){
+    const r=await fetch('api.php',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      credentials:'same-origin',
+      body:JSON.stringify(data)
+    });
+    const text=await r.text();
+    let j;
+    try{j=JSON.parse(text)}catch(e){throw new Error('O servidor não retornou uma resposta válida.')}
+    if(!r.ok) throw new Error(j.error||'Não foi possível concluir.');
+    return j;
+  }
+
+  function showExisting(){
+    mode='existing';
+    $('step0').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('step1').classList.remove('hidden');
+    $('formTitle').textContent='Entrar no AZION IA';
+    $('formDesc').textContent='Informe o e-mail da sua conta para receber o código.';
+    $('name').classList.add('hidden');
+    $('phone').classList.add('hidden');
+    $('email').focus();
+  }
+
+  function showNew(){
+    mode='new';
+    $('step0').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('step1').classList.remove('hidden');
+    $('formTitle').textContent='Criar acesso';
+    $('formDesc').textContent='Informe seus dados para criar o acesso ao AZION IA.';
+    $('name').classList.remove('hidden');
+    $('phone').classList.remove('hidden');
+    $('name').focus();
+  }
+
+  function goBack(){
+    $('step1').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('step0').classList.remove('hidden');
+  }
+
+  async function requestCode(){
+    try{
+      email=$('email').value.trim();
+      if(!email) throw new Error('Informe seu e-mail.');
+      if(mode==='new'&&!$('name').value.trim()) throw new Error('Informe seu nome.');
+      const j=await api({
+        action:'request_code',
+        mode:mode,
+        email:email,
+        name:$('name').value.trim(),
+        phone:$('phone').value.trim()
+      });
+      $('shownEmail').textContent=email;
+      $('step1').classList.add('hidden');
+      $('step2').classList.remove('hidden');
+      $('code').value='';
+      $('code').focus();
+      $('resend').textContent='O código expira em 10 minutos.';
+    }catch(e){
+      showModal(e.message,'Não foi possível continuar');
+    }
+  }
+
+  async function verifyCode(){
+    try{
+      const code=$('code').value.trim();
+      if(!/^\d{6}$/.test(code)) throw new Error('Digite o código de 6 dígitos.');
+      const j=await api({action:'verify_code',email:email,code:code});
+      $('gate').classList.add('hidden');
+      $('msgs').innerHTML='';
+      (j.messages||[]).forEach(x=>msg(x.text,(x.role==='assistant'||x.role==='human')?'in':'out'));
+    }catch(e){
+      showModal(e.message,'Código não validado');
+    }
+  }
+
+  function msg(t,c){
+    const d=document.createElement('div');
+    d.className='msg '+c;
+    const text=String(t||'');
+    if(c==='in'&&/telegram/i.test(text)&&/instagram/i.test(text)){
+      const clean=text.replace(/https?:\/\/\S+/gi,'').trim();
+      if(clean){
+        const p=document.createElement('div');
+        p.textContent=clean;
+        d.appendChild(p);
+      }
+      const actions=document.createElement('div');
+      actions.className='social-actions';
+      const tg=document.createElement('a');
+      tg.className='social-btn';
+      tg.href='https://t.me/JADIEL_TM';
+      tg.target='_blank';
+      tg.rel='noopener noreferrer';
+      tg.textContent='Telegram';
+      actions.appendChild(tg);
+      const ig=document.createElement('a');
+      ig.className='social-btn instagram';
+      ig.href='https://www.instagram.com/jadiel_strb_brd?stkn=cmZoNWxmcHo3ZGd5';
+      ig.target='_blank';
+      ig.rel='noopener noreferrer';
+      ig.textContent='Instagram';
+      actions.appendChild(ig);
+      d.appendChild(actions);
+    }else{
+      d.textContent=text;
+    }
+    $('msgs').appendChild(d);
+    $('msgs').scrollTop=$('msgs').scrollHeight;
+  }
+
+  $('btnExisting').addEventListener('click',showExisting);
+  $('btnNew').addEventListener('click',showNew);
+  $('btnBack1').addEventListener('click',goBack);
+  $('btnBack2').addEventListener('click',goBack);
+  $('btnRequestCode').addEventListener('click',requestCode);
+  $('btnVerifyCode').addEventListener('click',verifyCode);
+  $('btnCloseProfile').addEventListener('click',()=> $('profilebox').classList.add('hidden'));
+  $('azmodalOk').addEventListener('click',closeModal);
+  $('azmodalCancel').addEventListener('click',closeModal);
+  $('azmodal').addEventListener('click',e=>{if(e.target===$('azmodal'))closeModal()});
+  $('profile').addEventListener('click',()=> $('profilebox').classList.remove('hidden'));
+
+  $('bar').addEventListener('submit',async function(e){
+    e.preventDefault();
+    const t=$('text').value.trim();
+    if(!t)return;
+    $('text').value='';
+    msg(t,'out');
+    $('typing').classList.remove('hidden');
+    try{
+      const j=await api({action:'chat',message:t});
+      msg(j.reply,'in');
+    }catch(e){msg(e.message,'in')}
+    finally{$('typing').classList.add('hidden')}
+  });
+
+  (async function(){
+    try{
+      const j=await api({action:'me'});
+      if(j.authenticated){
+        $('gate').classList.add('hidden');
+        $('msgs').innerHTML='';
+        (j.messages||[]).forEach(x=>msg(x.text,(x.role==='assistant'||x.role==='human')?'in':'out'));
+      }
+    }catch(e){}
+  })();
+});
 </script>
 </body></html>

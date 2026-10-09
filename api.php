@@ -94,11 +94,11 @@ function create_code($d,$email,$client=[]){
   if(!code_send($email,$code))return [false,$d];
   save($d);return [true,$d];
 }
-function hf_http($url,$payload,$timeout=60){
+function groq_http($url,$payload,$timeout=60){
   $json=is_string($payload)?$payload:json_encode($payload,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
   if($json===false)return [0,false,'Não foi possível preparar a solicitação.'];
-  $token=trim((string)HF_TOKEN);
-  if($token===''||strpos($token,'COLE_')===0)return [0,false,'O token do Hugging Face ainda não foi configurado no servidor.'];
+  $token=trim((string)GROQ_API_KEY);
+  if($token===''||strpos($token,'COLE_')===0)return [0,false,'O token da Groq ainda não foi configurado no servidor.'];
   $headers=['Content-Type: application/json','Authorization: Bearer '.$token];
   if(function_exists('curl_init')){
     $ch=curl_init($url);
@@ -111,46 +111,31 @@ function hf_http($url,$payload,$timeout=60){
   $body=@file_get_contents($url,false,$ctx);$status=0;
   if(isset($http_response_header[0])&&preg_match('/\s(\d{3})\s/',$http_response_header[0],$m))$status=(int)$m[1];
   if($body!==false)return [$status,$body,''];
-  return [0,false,'A hospedagem não conseguiu conectar ao Hugging Face.'];
+  return [0,false,'A hospedagem não conseguiu conectar à API da Groq.'];
 }
-function generate_image_hf($prompt){
-  $payload=['inputs'=>$prompt,'parameters'=>['width'=>1024,'height'=>1024]];
-  [$status,$body,$err]=hf_http('https://router.huggingface.co/hf-inference/models/'.HF_IMAGE_MODEL,$payload,90);
-  if($body===false)return ['error'=>'Não foi possível conectar ao Hugging Face para gerar a imagem.'];
-  if($status<200||$status>=300){
-    $j=json_decode($body,true);$detail=$j['error']??'';
-    if(is_array($detail))$detail=implode(' ',$detail);
-    if(stripos((string)$detail,'loading')!==false)return ['error'=>'O modelo de imagem está carregando. Aguarde um pouco e tente novamente.'];
-    if($status===401||$status===403)return ['error'=>'O Hugging Face recusou o acesso. Verifique o token e as permissões de inferência.'];
-    if($status===402||$status===429)return ['error'=>'O Hugging Face informou limite de uso, créditos insuficientes ou excesso de solicitações.'];
-    return ['error'=>'O Hugging Face não conseguiu gerar a imagem agora (HTTP '.$status.'). Verifique a disponibilidade do modelo.'];
-  }
-  $mime='image/png';
-  if(function_exists('finfo_buffer')){
-    $fi=@finfo_open(FILEINFO_MIME_TYPE);if($fi){$det=@finfo_buffer($fi,$body);if(is_string($det)&&strpos($det,'image/')===0)$mime=$det;finfo_close($fi);}
-  }
-  if(strpos($mime,'image/')!==0)return ['error'=>'O Hugging Face não retornou um arquivo de imagem válido.'];
-  return ['image'=>'data:'.$mime.';base64,'.base64_encode($body),'prompt'=>$prompt];
+function generate_image_groq($prompt){
+  return ['error'=>'A API da Groq usada pela AZION IA gera respostas de texto, mas não cria arquivos de imagem. A geração de imagens exige outro serviço de IA.'];
 }
-function hf_chat($history,$knowledge,$client){
-  $token=trim((string)HF_TOKEN);
-  if($token===''||strpos($token,'COLE_')===0)return ['error'=>'O token do Hugging Face ainda não foi configurado no servidor.'];
+function groq_chat($history,$knowledge,$client){
+  $token=trim((string)GROQ_API_KEY);
+  if($token===''||strpos($token,'COLE_')===0)return ['error'=>'O token da Groq ainda não foi configurado no servidor.'];
   $kb='';foreach($knowledge as $k)$kb.="\n### ".clean($k['title'],200)."\n".clean($k['content'],7000);
   $sys="Você é AZION IA, uma inteligência artificial extremamente inteligente, profissional e natural para atendimento, suporte técnico, programação, análise, pesquisa e resolução de problemas. Compreenda a intenção mesmo com gírias, abreviações, erros de digitação ou português informal. Use o contexto recente e responda exatamente ao que foi pedido.\nREGRAS:\n- Português do Brasil por padrão. Seja natural, clara, direta, profissional e útil.\n- Quando faltar informação, faça uma pergunta curta; não invente fatos, preços, resultados ou ações externas.\n- Resolva problemas passo a passo e forneça código funcional quando solicitado.\n- Nunca peça nem revele senhas, tokens, códigos de autenticação ou dados bancários completos.\n- Não use asteriscos ou Markdown com asteriscos.\nIDENTIDADE:\n- JADIEL é o desenvolvedor e proprietário oficial da AZION IA e responsável pela JDL PROGRAMING.\n- Telegram: https://t.me/JADIEL_TM\n- Instagram: https://www.instagram.com/jadiel_strb_brd?stkn=cmZoNWxmcHo3ZGd5\n- Se perguntarem quem criou/desenvolveu a AZION IA, quem é JADIEL ou sobre a JDL PROGRAMING, responda apenas com esses fatos e ofereça os canais oficiais acima. Não invente biografia ou dados pessoais.\nDATA E HORA: ".date('d/m/Y H:i:s')." (America/Bahia).\nCLIENTE: ".json_encode($client,JSON_UNESCAPED_UNICODE)."\nBASE DE CONHECIMENTO:\n".$kb;
   $messages=[['role'=>'system','content'=>$sys]];
   foreach(array_slice($history,-12) as $m)$messages[]=['role'=>$m['role']==='assistant'?'assistant':'user','content'=>clean($m['text'],8000)];
-  $payload=['model'=>HF_CHAT_MODEL,'messages'=>$messages,'temperature'=>0.25,'max_tokens'=>1800,'stream'=>false];
-  [$status,$body,$err]=hf_http('https://router.huggingface.co/v1/chat/completions',$payload,60);
+  $payload=['model'=>GROQ_CHAT_MODEL,'messages'=>$messages,'temperature'=>0.25,'max_tokens'=>1800,'stream'=>false];
+  [$status,$body,$err]=groq_http('https://api.groq.com/openai/v1/chat/completions',$payload,60);
   $j=json_decode($body?:'',true);
   if($status>=200&&$status<300){
     $text=$j['choices'][0]['message']['content']??'';
     if(is_array($text))$text=json_encode($text,JSON_UNESCAPED_UNICODE);
     if(trim((string)$text)!=='')return ['text'=>plain_ai($text)];
   }
-  if($status===401||$status===403)return ['error'=>'O Hugging Face recusou o token. Verifique se ele permite chamadas aos Inference Providers.'];
-  if($status===402||$status===429)return ['error'=>'O Hugging Face informou limite de uso ou créditos insuficientes. Tente novamente mais tarde.'];
-  if($status===404)return ['error'=>'O modelo de conversa não está disponível no provedor escolhido.'];
-  return ['error'=>'Não foi possível obter uma resposta do Hugging Face neste momento'.($status?' (HTTP '.$status.')':'').'. Tente novamente em instantes.'];
+  if($status===401||$status===403)return ['error'=>'A Groq recusou o token. Confira se ele está correto e ativo.'];
+  if($status===402)return ['error'=>'A Groq informou que a conta não pode processar esta solicitação. Confira o painel da Groq.'];
+  if($status===429)return ['error'=>'A Groq atingiu o limite de solicitações ou tokens da conta. Aguarde e tente novamente.'];
+  if($status===404)return ['error'=>'O modelo de conversa configurado não está disponível.'];
+  return ['error'=>'Não foi possível obter uma resposta da Groq neste momento'.($status?' (HTTP '.$status.')':'').'. Tente novamente em instantes.'];
 }
 $d=db();
 $raw=file_get_contents('php://input');
@@ -201,7 +186,7 @@ if($a==='generate_image'){
   if(empty($_SESSION['azion_client']))out(['error'=>'Faça a verificação por e-mail para acessar o AZION IA.'],401);
   $prompt=clean($in['prompt']??'',1200);
   if($prompt==='')out(['error'=>'Descreva a imagem que deseja criar.'],422);
-  $r=generate_image_hf($prompt);
+  $r=generate_image_groq($prompt);
   if(isset($r['error']))out(['error'=>$r['error']],502);
   out(['ok'=>1,'image'=>$r['image'],'prompt'=>$r['prompt']]);
 }
@@ -212,7 +197,7 @@ if($a==='chat'){
   foreach($d['conversations'] as &$c)if($c['id']===$cid&&($c['client']['id']??'')===$_SESSION['azion_client']){
     if(client_banned($c['client']))out(['reply'=>'Seu acesso ao AZION IA foi banido. Não é possível continuar este atendimento.'],403);
     if($c['status']!=='ia')out(['reply'=>'Seu atendimento está com um atendente humano. Aguarde uma resposta.']);
-    $c['messages'][]=['role'=>'user','text'=>$text,'time'=>date('c')];$r=hf_chat($c['messages'],$d['knowledge'],$c['client']);
+    $c['messages'][]=['role'=>'user','text'=>$text,'time'=>date('c')];$r=groq_chat($c['messages'],$d['knowledge'],$c['client']);
     if(isset($r['error']))out(['error'=>$r['error']],502);
     $c['messages'][]=['role'=>'assistant','text'=>$r['text'],'time'=>date('c')];$c['updated_at']=date('c');save($d);out(['reply'=>$r['text']]);
   }

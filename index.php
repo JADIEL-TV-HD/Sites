@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const d=document.createElement('div');
     d.className='msg '+c;
     const text=String(t||'');
-    if(c==='in'&&((/telegram/i.test(text)&&/instagram/i.test(text))||(/\b(jadiel|desenvolvedor|desenvolveu|criou|criador|dono|proprietário|proprietario|jdl programing)\b/i.test(text)))){
+    if(c==='in'&&text.includes('https://t.me/JADIEL_TM')&&text.includes('https://www.instagram.com/jadiel_strb_brd')){
       const clean=text.replace(/https?:\/\/\S+/gi,'').trim();
       if(clean){
         const p=document.createElement('div');

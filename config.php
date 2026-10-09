@@ -1,7 +1,7 @@
 <?php
 // Configure GROQ_API_KEY apenas no servidor. Nunca publique o token real no GitHub.
 const GROQ_API_KEY='COLE_SEU_TOKEN_GROQ_AQUI';
-const GROQ_CHAT_MODEL='llama-3.3-70b-versatile';
+const GROQ_CHAT_MODEL='openai/gpt-oss-120b';
 const ADMIN_USER='admin';
 const ADMIN_PASSWORD='TROQUE_ESTA_SENHA';
 const DATA_FILE=__DIR__.'/data.json';

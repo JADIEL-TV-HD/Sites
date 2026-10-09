@@ -200,10 +200,19 @@ document.addEventListener('DOMContentLoaded', function(){
     msg(t,'out');
     $('typing').classList.remove('hidden');
     try{
-      const j=await api({action:'chat',message:t});
-      msg(j.reply,'in');
+      if(wantsImageRequest(t)){
+        $('typing').textContent='AZION IA está criando sua imagem…';
+        const prompt=extractImagePrompt(t);
+        const j=await api({action:'generate_image',prompt:prompt});
+        if(j.image){imageMsg(j);if(j.prompt)msg('Imagem criada com sucesso.','in');}
+        else msg('O Hugging Face não retornou uma imagem válida.','in');
+      }else{
+        $('typing').textContent='AZION IA está digitando…';
+        const j=await api({action:'chat',message:t});
+        msg(j.reply||j.error||'Não recebi uma resposta válida.','in');
+      }
     }catch(e){msg(e.message,'in')}
-    finally{$('typing').classList.add('hidden')}
+    finally{$('typing').textContent='AZION IA está digitando…';$('typing').classList.add('hidden')}
   });
 
   (async function(){

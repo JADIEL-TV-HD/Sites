@@ -1,7 +1,8 @@
 <?php
-const OPENROUTER_API_KEY='COLE_SUA_CHAVE_OPENROUTER_AQUI';
-const OPENROUTER_MODEL='openrouter/free:online';
-const OPENROUTER_IMAGE_MODEL='black-forest-labs/flux.2-klein-4b';
+// Configure o token HF no servidor; mantenha o segredo fora de repositórios públicos.
+const HF_TOKEN='COLE_SEU_TOKEN_HUGGINGFACE_AQUI';
+const HF_CHAT_MODEL='openai/gpt-oss-120b:fastest';
+const HF_IMAGE_MODEL='black-forest-labs/FLUX.1-dev';
 const ADMIN_USER='admin';
 const ADMIN_PASSWORD='TROQUE_ESTA_SENHA';
 const DATA_FILE=__DIR__.'/data.json';

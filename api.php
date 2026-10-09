@@ -104,13 +104,35 @@ function openrouter_request($key,$payload){
     if($body!==false)return [$status,$body];
   }
   if(function_exists('file_get_contents')&&function_exists('stream_context_create')){
-    $ctx=stream_context_create(['http'=>['method'=>'POST','header'=>"Content-Type: application/json\r\nAuthorization: Bearer ".$key."\r\nX-Title: AZION IA\r\n",'content'=>$json,'timeout'=>60,'ignore_errors'=>true]]);
+    $ctx=stream_context_create(['http'=>['method'=>'POST','header'=>"Content-Type: application/json\r\nAuthorization: Bearer ".$key."\r\nX-Title: AZION IA\r\n",'content'=>$json,'timeout'=>35,'ignore_errors'=>true]]);
     $body=@file_get_contents('https://openrouter.ai/api/v1/chat/completions',false,$ctx);
     $status=0;
     if(isset($http_response_header[0])&&preg_match('/\s(\d{3})\s/',$http_response_header[0],$m))$status=(int)$m[1];
     if($body!==false)return [$status,$body];
   }
   return [0,false];
+}
+function generate_image_openrouter($prompt){
+  $key=trim((string)OPENROUTER_API_KEY);
+  if($key===''||substr($key,0,5)==='COLE_')return ['error'=>'A API do OpenRouter ainda não foi configurada no servidor.'];
+  $payload=json_encode(['model'=>OPENROUTER_IMAGE_MODEL,'prompt'=>$prompt,'aspect_ratio'=>'1:1','output_format'=>'png'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+  if($payload===false)return ['error'=>'Não foi possível preparar a imagem.'];
+  $headers=['Content-Type: application/json','Authorization: Bearer '.$key,'X-Title: AZION IA'];
+  if(function_exists('curl_init')){
+    $ch=curl_init('https://openrouter.ai/api/v1/images');
+    curl_setopt_array($ch,[CURLOPT_POST=>1,CURLOPT_RETURNTRANSFER=>1,CURLOPT_CONNECTTIMEOUT=>10,CURLOPT_TIMEOUT=>90,CURLOPT_HTTPHEADER=>$headers,CURLOPT_POSTFIELDS=>$payload]);
+    $body=curl_exec($ch);$status=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);curl_close($ch);
+  }else{
+    $ctx=stream_context_create(['http'=>['method'=>'POST','header'=>implode("\r\n",$headers)."\r\n",'content'=>$payload,'timeout'=>90,'ignore_errors'=>true]]);
+    $body=@file_get_contents('https://openrouter.ai/api/v1/images',false,$ctx);$status=0;
+    if(isset($http_response_header[0])&&preg_match('/\\s(\\d{3})\\s/',$http_response_header[0],$m))$status=(int)$m[1];
+  }
+  $j=json_decode($body?:'',true);
+  $b64=$j['data'][0]['b64_json']??'';
+  if($status<200||$status>=300||!is_string($b64)||$b64===''){
+    return ['error'=>'Não consegui criar a imagem agora. Verifique se o modelo de imagem está disponível e se há saldo/créditos no OpenRouter.'];
+  }
+  return ['image'=>'data:'.(($j['data'][0]['media_type']??'image/png')).';base64,'.$b64,'prompt'=>$prompt];
 }
 function gemini($history,$knowledge,$client){
   $key=trim((string)OPENROUTER_API_KEY);
@@ -147,8 +169,8 @@ CLIENTE:
 BASE DE CONHECIMENTO:
 ".$kb;
   $messages=[['role'=>'system','content'=>$sys]];
-  foreach(array_slice($history,-30) as $m)$messages[]=['role'=>$m['role']==='assistant'?'assistant':'user','content'=>clean($m['text'],8000)];
-  $payload=['model'=>OPENROUTER_MODEL,'messages'=>$messages,'temperature'=>.25,'max_tokens'=>3000];
+  foreach(array_slice($history,-12) as $m)$messages[]=['role'=>$m['role']==='assistant'?'assistant':'user','content'=>clean($m['text'],8000)];
+  $payload=['model'=>OPENROUTER_MODEL,'messages'=>$messages,'temperature'=>.25,'max_tokens'=>1800];
   [$status,$body]=openrouter_request($key,$payload);
   $j=json_decode($body?:'',true);
   if($status>=200&&$status<300){
@@ -201,6 +223,15 @@ if($a==='me'){
     out(['authenticated'=>true,'id'=>$cv['id'],'messages'=>$cv['messages']]);
   }
   session_destroy();out(['authenticated'=>false]);
+}
+if($a==='generate_image'){
+  rate('image:'.ip(),5,300);
+  if(empty($_SESSION['azion_client']))out(['error'=>'Faça a verificação por e-mail para acessar o AZION IA.'],401);
+  $prompt=clean($in['prompt']??'',1200);
+  if($prompt==='')out(['error'=>'Descreva a imagem que deseja criar.'],422);
+  $r=generate_image_openrouter($prompt);
+  if(isset($r['error']))out(['error'=>$r['error']],502);
+  out(['ok'=>1,'image'=>$r['image'],'prompt'=>$r['prompt']]);
 }
 if($a==='chat'){
   rate('chat:'.ip(),60,60);

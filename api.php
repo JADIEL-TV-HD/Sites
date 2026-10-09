@@ -98,7 +98,7 @@ function groq_http($url,$payload,$timeout=60){
   $json=is_string($payload)?$payload:json_encode($payload,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
   if($json===false)return [0,false,'Não foi possível preparar a solicitação.'];
   $token=trim((string)GROQ_API_KEY);
-  if($token===''||strpos($token,'COLE_')===0)return [0,false,'O token da Groq ainda não foi configurado no servidor.'];
+  if($token===''||strpos($token,'COLE_')===0)return [0,false,'A AZION IA está temporariamente indisponível. Tente novamente mais tarde.'];
   $headers=['Content-Type: application/json','Authorization: Bearer '.$token];
   if(function_exists('curl_init')){
     $ch=curl_init($url);
@@ -114,7 +114,7 @@ function groq_http($url,$payload,$timeout=60){
   return [0,false,'A hospedagem não conseguiu conectar à API da Groq.'];
 }
 function generate_image_groq($prompt){
-  return ['error'=>'A API da Groq usada pela AZION IA gera respostas de texto, mas não cria arquivos de imagem. A geração de imagens exige outro serviço de IA.'];
+  return ['error'=>'No momento, a criação de arquivos de imagem ainda não está disponível na AZION IA.'];
 }
 function groq_chat($history,$knowledge,$client){
   $token=trim((string)GROQ_API_KEY);
@@ -131,11 +131,11 @@ function groq_chat($history,$knowledge,$client){
     if(is_array($text))$text=json_encode($text,JSON_UNESCAPED_UNICODE);
     if(trim((string)$text)!=='')return ['text'=>plain_ai($text)];
   }
-  if($status===401||$status===403)return ['error'=>'A Groq recusou o token. Confira se ele está correto e ativo.'];
-  if($status===402)return ['error'=>'A Groq informou que a conta não pode processar esta solicitação. Confira o painel da Groq.'];
-  if($status===429)return ['error'=>'A Groq atingiu o limite de solicitações ou tokens da conta. Aguarde e tente novamente.'];
-  if($status===404)return ['error'=>'O modelo de conversa configurado não está disponível.'];
-  return ['error'=>'Não foi possível obter uma resposta da Groq neste momento'.($status?' (HTTP '.$status.')':'').'. Tente novamente em instantes.'];
+  if($status===401||$status===403)return ['error'=>'A AZION IA está temporariamente indisponível. Tente novamente mais tarde.'];
+  if($status===402)return ['error'=>'A AZION IA não conseguiu processar sua solicitação neste momento. Tente novamente mais tarde.'];
+  if($status===429)return ['error'=>'A AZION IA está recebendo muitas solicitações neste momento. Aguarde um pouco e tente novamente.'];
+  if($status===404)return ['error'=>'A AZION IA não conseguiu responder neste momento. Tente novamente em instantes.'];
+  return ['error'=>'A AZION IA não conseguiu concluir sua resposta neste momento. Tente novamente em instantes.'];
 }
 $d=db();
 $raw=file_get_contents('php://input');

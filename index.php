@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function wantsImageRequest(text){
-    return /(?:crie|criar|gere|gerar|faca|faça|desenhe|produza|cria)\s+(?:uma?\s+)?(?:imagem|foto|desenho|arte)\b|\b(?:imagem|foto|desenho|arte)\s+(?:de|do|da|com|mostrando)\b/i.test(text);
+    return /(?:crie|criar|gere|gerar|faca|faça|faz|fazer|desenhe|desenha|desenhar|produza|produzir|cria|quero)\s+(?:uma?\s+)?(?:imagem|foto|desenho|arte)\b|\b(?:imagem|foto|desenho|arte)\s+(?:de|do|da|com|mostrando)\b/i.test(text);
   }
   function extractImagePrompt(text){
     return String(text).replace(/^\s*(?:por favor[, ]*)?(?:crie|criar|gere|gerar|faca|faça|desenhe|produza|cria)\s+(?:uma?\s+)?(?:imagem|foto|desenho|arte)\s*(?:de|do|da|com|mostrando)?\s*/i,'').trim() || String(text).trim();

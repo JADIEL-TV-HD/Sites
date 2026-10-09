@@ -1,6 +1,7 @@
 <?php
 const OPENROUTER_API_KEY='COLE_SUA_CHAVE_OPENROUTER_AQUI';
 const OPENROUTER_MODEL='openrouter/free:online';
+const OPENROUTER_IMAGE_MODEL='black-forest-labs/flux.2-klein-4b';
 const ADMIN_USER='admin';
 const ADMIN_PASSWORD='TROQUE_ESTA_SENHA';
 const DATA_FILE=__DIR__.'/data.json';

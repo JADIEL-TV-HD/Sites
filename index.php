@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const prompt=extractImagePrompt(t);
         const j=await api({action:'generate_image',prompt:prompt});
         if(j.image){imageMsg(j);if(j.prompt)msg('Imagem criada com sucesso.','in');}
-        else msg('O Hugging Face não retornou uma imagem válida.','in');
+        else msg('A Groq não cria imagens; essa função precisa de um serviço de geração de imagens.','in');
       }else{
         $('typing').textContent='AZION IA está digitando…';
         const j=await api({action:'chat',message:t});

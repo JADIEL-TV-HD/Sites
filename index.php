@@ -119,6 +119,30 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  function wantsImageRequest(text){
+    return /(?:crie|criar|gere|gerar|faca|faça|desenhe|produza|cria)\s+(?:uma?\s+)?(?:imagem|foto|desenho|arte)\b|\b(?:imagem|foto|desenho|arte)\s+(?:de|do|da|com|mostrando)\b/i.test(text);
+  }
+  function extractImagePrompt(text){
+    return String(text).replace(/^\s*(?:por favor[, ]*)?(?:crie|criar|gere|gerar|faca|faça|desenhe|produza|cria)\s+(?:uma?\s+)?(?:imagem|foto|desenho|arte)\s*(?:de|do|da|com|mostrando)?\s*/i,'').trim() || String(text).trim();
+  }
+  function imageMsg(data){
+    const d=document.createElement('div');
+    d.className='msg in';
+    const label=document.createElement('div');
+    label.textContent='Imagem criada pela AZION IA';
+    label.style.marginBottom='8px';
+    const img=document.createElement('img');
+    img.src=data.image;
+    img.alt='Imagem criada pela AZION IA';
+    img.loading='lazy';
+    img.style.maxWidth='100%';
+    img.style.borderRadius='10px';
+    d.appendChild(label);
+    d.appendChild(img);
+    $('msgs').appendChild(d);
+    $('msgs').scrollTop=$('msgs').scrollHeight;
+  }
+
   function msg(t,c){
     const d=document.createElement('div');
     d.className='msg '+c;

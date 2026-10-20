@@ -845,7 +845,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
       playBeep(880, 'triangle', 0.15);
       $('shownEmail').textContent = email;
-      $('testCodeVal').textContent = '';\n      $('codeHintBox').classList.add('hidden');
+      $('testCodeVal').textContent = '';
+      $('codeHintBox').classList.add('hidden');
       $('step1').classList.add('hidden');
       $('step2').classList.remove('hidden');
       $('codeInput').value = '';

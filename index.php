@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
   $('azmodalOk').addEventListener('click', closeModal);
 
   async function api(data) {
-    const res = await fetch(window.location.href, {
+    const res = await fetch('api.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -845,7 +845,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       playBeep(880, 'triangle', 0.15);
       $('shownEmail').textContent = email;
-      $('testCodeVal').textContent = res.testCode || '123456';
+      $('testCodeVal').textContent = '';\n      $('codeHintBox').classList.add('hidden');
       $('step1').classList.add('hidden');
       $('step2').classList.remove('hidden');
       $('codeInput').value = '';
@@ -942,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $('typing').innerHTML = '<span>●</span> AZION IA está criando sua arte…';
         const res = await api({ action: 'generate_image', prompt: t });
         playBeep(780, 'triangle', 0.15);
-        renderMsg('Arte gerada pela AZION IA com sucesso!', 'in', res.image);
+        renderMsg(res.error || 'A criação de imagens ainda não está disponível na AZION IA.', 'in');
       } else {
         $('typing').innerHTML = '<span>●</span> AZION IA está digitando…';
         const res = await api({ action: 'chat', message: t });
@@ -950,7 +950,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderMsg(res.reply || 'Como posso te ajudar?', 'in');
       }
     } catch(err) {
-      renderMsg('Ocorreu uma instabilidade: ' + err.message, 'in');
+      renderMsg(err.message || 'A AZION IA não conseguiu concluir sua resposta neste momento. Tente novamente.', 'in');
     } finally {
       $('typing').classList.add('hidden');
     }
